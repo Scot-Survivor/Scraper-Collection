@@ -46,7 +46,8 @@ def main():
             executor.submit(get_recipe_urls, url, i)
 
     for url in tqdm.tqdm(URLs, desc="Writing Outputs"):
-        write_output(f"{get_url_path_parts(url)[-1]}.txt", "\n".join(URLs[url]))
+        if len(URLs[url]) > 0:
+            write_output(f"{get_url_path_parts(url)[-1]}.txt", "\n".join(URLs[url]))
 
 
 

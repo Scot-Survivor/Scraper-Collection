@@ -9,6 +9,8 @@ import urllib.parse as urlparse
 import pyinputplus as pyip
 
 from typing import List
+
+from utils.cache import Cache, TTL
 from utils.webpages import get_authenticated_api_data, post_authenticated_api_data
 from utils.outputs import load_settings, save_settings
 from concurrent.futures import ThreadPoolExecutor
@@ -114,6 +116,7 @@ def filter_checking_foods():
 
 
 def main():
+    cache = Cache()
     token = os.getenv("MEALIE_API_TOKEN", SETTINGS.get("MEALIE_API_TOKEN"))
     if token is None:
         token = pyip.inputStr("Enter your Mealie API Token: ")
@@ -123,13 +126,23 @@ def main():
         url = pyip.inputURL("Enter your Mealie URL: ")
         SETTINGS["MEALIE_URL"] = url
     save_settings(SETTINGS)
-
-    recipe_ids = get_recipe_ids()
+    if cache.exists("recipe_ids"):
+        recipe_ids = cache.get("recipe_ids")
+    else:
+        recipe_ids = get_recipe_ids()
+        cache.set("recipe_ids", recipe_ids, TTL.MINUTES * 5)
+        cache.write_cache()
     logging.debug(f"Found {len(recipe_ids)} recipes")
 
-    ingredients = []
-    for recipe_id in tqdm.tqdm(recipe_ids, desc="Fetching Ingredients"):
-        ingredients.append(get_recipe_ingredients(recipe_id))
+    if cache.exists("ingredients"):
+        ingredients = cache.get("ingredients")
+    else:
+        ingredients = []
+        for recipe_id in tqdm.tqdm(recipe_ids, desc="Fetching Ingredients"):
+            ingredients.append(get_recipe_ingredients(recipe_id))
+        cache.set("ingredients", ingredients, TTL.MINUTES * 5)
+        cache.write_cache()
+
     foods = []
     with ThreadPoolExecutor() as executor:
         for i, ingredient in enumerate(ingredients):

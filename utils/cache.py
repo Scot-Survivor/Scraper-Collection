@@ -18,6 +18,16 @@ if not os.path.exists("./.cache"):
     os.makedirs("./.cache")
 
 
+class TTL:
+    """
+    Multipliers for TTL values
+    """
+    SECONDS = 1
+    MINUTES = 60
+    HOURS = 60 * 60
+    DAYS = 60 * 60 * 24
+
+
 class Cache:
     """Singleton Cache class"""
 
@@ -80,6 +90,7 @@ class Cache:
         Returns:
             Any: Value stored in the cache
         """
+        logging.debug(f"Getting key: {key}")
         calling_filename = get_calling_filename()
         key = f"{calling_filename}-{key}"
         with self.cache_lock:
@@ -93,6 +104,7 @@ class Cache:
         Args:
             key (str): Key to remove
         """
+        logging.debug(f"Removing key: {key}")
         calling_filename = get_calling_filename()
         key = f"{calling_filename}-{key}"
         with self.cache_lock:
@@ -101,6 +113,7 @@ class Cache:
 
     def clear(self):
         """Clear the cache for give module"""
+        logging.debug("Clearing cache")
         with self.cache_lock:
             calling_filename = get_calling_filename()
             keys = [key for key in self.cache.keys() if key.startswith(calling_filename)]
@@ -113,7 +126,22 @@ class Cache:
         Returns:
             Dict[str, Any]: All keys and values in the cache
         """
+        logging.debug("Getting all keys")
         with self.cache_lock:
             calling_filename = get_calling_filename()
             keys = {key: self.cache[key]['value'] for key in self.cache.keys() if key.startswith(calling_filename)}
         return {key.split("-")[1]: value for key, value in keys.items()}
+
+    def exists(self, key: str) -> bool:
+        """Check if a key exists in the cache
+
+        Args:
+            key (str): Key to check
+
+        Returns:
+            bool: True if key exists, False otherwise
+        """
+        calling_filename = get_calling_filename()
+        key = f"{calling_filename}-{key}"
+        with self.cache_lock:
+            return key in self.cache

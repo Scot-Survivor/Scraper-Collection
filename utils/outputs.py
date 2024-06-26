@@ -17,11 +17,14 @@ def write_output(filename, data):
     frame = inspect.stack()[1]
     module = inspect.getmodule(frame[0])
     calling_filename = os.path.basename(module.__file__).split(".")[0]
-    filename = f"{calling_filename}-{filename}"
-    with open(f"{OUTPUT_DIRECTORY}/{filename}", "w") as f:
+    output_dir = os.path.join(OUTPUT_DIRECTORY, calling_filename)
+    if not os.path.exists(os.path.join(output_dir)):
+        os.makedirs(output_dir)
+    filename = f"{filename}"
+    with open(f"{output_dir}/{filename}", "w") as f:
         f.write(data)
     f.close()
-    logging.info(f"Output written to {OUTPUT_DIRECTORY}/{filename}")
+    logging.info(f"Output written to {output_dir}/{filename}")
 
 
 if __name__ == "__main__":

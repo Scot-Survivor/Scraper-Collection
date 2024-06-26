@@ -10,6 +10,9 @@ if not os.path.exists(OUTPUT_DIRECTORY):
 
 
 def write_output(filename, data):
+    if len(data) <= 0:
+        logging.warning("No data to write")
+        return
     # Preface filename with calling filename
     frame = inspect.stack()[1]
     module = inspect.getmodule(frame[0])

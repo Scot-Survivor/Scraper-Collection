@@ -29,9 +29,29 @@ def get_list_of_scrapers():
     return scrapers
 
 
+def menu_to_select_scraper(scrapers) -> list:
+    print("Select a Scraper to Run:")
+    for i, scraper in enumerate(scrapers):
+        print(f"\t{i + 1}. {scraper}")
+    print("\t0. All")
+    selection = input("Selection: ")
+    if selection == "0":
+        return scrapers
+    try:
+        selection = int(selection)
+        if selection < 0 or selection > len(scrapers):
+            print("Invalid Selection")
+            return menu_to_select_scraper(scrapers)
+        return [scrapers[selection - 1]]
+    except ValueError:
+        print("Invalid Selection")
+        return menu_to_select_scraper(scrapers)
+
+
 def main():
     logging.info("Starting Scraper")
     scrapers = get_list_of_scrapers()
+    scrapers = menu_to_select_scraper(scrapers)
     for scraper in scrapers:
         logging.debug(f"Starting Scraper: {scraper}")
         module = import_module(scraper)

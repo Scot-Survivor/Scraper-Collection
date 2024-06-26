@@ -5,6 +5,7 @@ import os
 import logging
 
 from utils.logs import CustomFormatter
+from utils.cache import Cache
 from os import listdir
 from os.path import isfile, join
 from importlib import import_module
@@ -49,6 +50,8 @@ def menu_to_select_scraper(scrapers) -> list:
 
 
 def main():
+    # Init the cache
+    c = Cache()
     logging.info("Starting Scraper")
     scrapers = get_list_of_scrapers()
     scrapers = menu_to_select_scraper(scrapers)
@@ -58,6 +61,7 @@ def main():
         module.main()
         logging.debug(f"Finishing Scraper: {scraper}")
     logging.debug("Finishing Scraper")
+    c.write_cache()
 
 
 if __name__ == "__main__":

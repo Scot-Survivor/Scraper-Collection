@@ -26,3 +26,40 @@ def get_url_path_parts(url) -> List[str]:
     paths = list(filter(lambda x: x != "", paths))
     paths = list(filter(lambda x: x.strip(), paths))
     return paths
+
+
+def get_authenticated_api_data(url, bearer_token):
+    """
+    Make an authenticated API request
+    :param url: URL
+    :param bearer_token: Bearer Token
+    :return: Response
+    """
+    headers = {
+        'Authorization': f'Bearer {bearer_token}',
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+        'Encoding': 'utf-8'
+    }
+    resp = requests.get(url, headers=headers)
+    resp.raise_for_status()
+    return resp.json()
+
+
+def post_authenticated_api_data(url, bearer_token, json_data):
+    """
+    Make an authenticated API request
+    :param url: URL
+    :param bearer_token: Bearer Token
+    :param json_data: JSON data
+    :return: Response
+    """
+    headers = {
+        'Authorization': f'Bearer {bearer_token}',
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+        'Encoding': 'utf-8'
+    }
+    resp = requests.post(url, headers=headers, json=json_data)
+    resp.raise_for_status()
+    return resp.json()

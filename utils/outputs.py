@@ -1,6 +1,7 @@
 import os
 import logging
 import inspect
+import json
 
 
 OUTPUT_DIRECTORY = "./outputs"
@@ -9,14 +10,18 @@ if not os.path.exists(OUTPUT_DIRECTORY):
     os.makedirs(OUTPUT_DIRECTORY)
 
 
+def get_calling_filename():
+    frame = inspect.stack()[2]
+    module = inspect.getmodule(frame[0])
+    return os.path.basename(module.__file__).split(".")[0]
+
+
 def write_output(filename, data):
     if len(data) <= 0:
         logging.warning("No data to write")
         return
     # Preface filename with calling filename
-    frame = inspect.stack()[1]
-    module = inspect.getmodule(frame[0])
-    calling_filename = os.path.basename(module.__file__).split(".")[0]
+    calling_filename = get_calling_filename()
     output_dir = os.path.join(OUTPUT_DIRECTORY, calling_filename)
     if not os.path.exists(os.path.join(output_dir)):
         os.makedirs(output_dir)
@@ -25,6 +30,28 @@ def write_output(filename, data):
         f.write(data)
     f.close()
     logging.info(f"Output written to {output_dir}/{filename}")
+
+
+def save_settings(data: dict):
+    logging.debug(f"Saving settings for {get_calling_filename()}: {data}")
+    settings_name = get_calling_filename() + "_settings.json"
+    with open(f"{OUTPUT_DIRECTORY}/{settings_name}", "w") as f:
+        json.dump(data, f)
+    f.close()
+    logging.info(f"Settings written to {OUTPUT_DIRECTORY}/{settings_name}")
+
+
+def load_settings():
+    settings_name = get_calling_filename() + "_settings.json"
+    try:
+        with open(f"{OUTPUT_DIRECTORY}/{settings_name}", "r") as f:
+            data = json.load(f)
+        f.close()
+        logging.debug(f"Loaded settings for {get_calling_filename()}: {data}")
+        return data
+    except FileNotFoundError:
+        logging.warning(f"No settings found for {get_calling_filename()}")
+        return {}
 
 
 if __name__ == "__main__":

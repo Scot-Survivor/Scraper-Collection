@@ -36,11 +36,11 @@ def get_categories(url):
 
 
 def main():
-    logging.debug("Fetching Categories")
+    logging.info("Fetching Categories")
     for url in get_categories(BASE_URL):
         URLs[url] = []
-    logging.debug(f"Found {len(URLs)} categories")
-    logging.debug("Fetching Recipes")
+    logging.info(f"Found {len(URLs)} categories")
+    logging.info("Fetching Recipes")
     with ThreadPoolExecutor(os.cpu_count()) as executor:
         for i, url in enumerate(URLs):
             executor.submit(get_recipe_urls, url, i)

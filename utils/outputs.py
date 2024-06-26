@@ -21,7 +21,7 @@ def write_output(filename, data):
     with open(f"{OUTPUT_DIRECTORY}/{filename}", "w") as f:
         f.write(data)
     f.close()
-    logging.debug(f"Output written to {OUTPUT_DIRECTORY}/{filename}")
+    logging.info(f"Output written to {OUTPUT_DIRECTORY}/{filename}")
 
 
 if __name__ == "__main__":

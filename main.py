@@ -4,6 +4,7 @@ load_dotenv()
 import os
 import logging
 
+from utils.logs import CustomFormatter
 from os import listdir
 from os.path import isfile, join
 from importlib import import_module
@@ -12,6 +13,7 @@ LOGGING_LEVEL = os.getenv("LOGGING_LEVEL", "DEBUG")
 
 logging.basicConfig(level=logging.getLevelNamesMapping().get(LOGGING_LEVEL, logging.DEBUG),
                     format='%(asctime)s - %(levelname)s - %(message)s')
+logging.getLogger().handlers[0].setFormatter(CustomFormatter())
 
 # Set Requests logging to info and urllib3 to warning
 logging.getLogger("requests").setLevel(logging.INFO)
